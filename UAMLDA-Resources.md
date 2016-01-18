@@ -5,7 +5,7 @@ All of the computing facilities in the UAMLDA given a codename, and these codena
 
 # The Khaleesi Server
 
-Codename `Khaleesi` (see [Daenerys Targaryen](http://gameofthrones.wikia.com/wiki/Daenerys_Targaryen)) is a private server to the students working in the University of Arizona's Machine Learning and Data Analytics Lab. The specifications for `Khaleesi` are 
+Codename `Khaleesi` is a private server to the students working in the University of Arizona's Machine Learning and Data Analytics Lab. The specifications for `Khaleesi` are 
 
 * Intel Xeon E7-4830 v3 Dodeca-core (12 Core) 2.10 GHz
 * RAM 16 SM 16GB DDR3 SDRAM RAM 16 GB (1 x 16 GB) DDR3 SDRAM-1600 MHz 

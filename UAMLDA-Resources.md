@@ -21,12 +21,14 @@ Codename `Khaleesi` is a private server to the students working in the Universit
 
 ## `ssh` Configuration 
 
+If you're lazy you can make the `ssh` process a bit easier by adding the following to the `~/.ssh/config` file on your local machine.
 ```
 Host khaleesi 
   User UAnetID
   Hostname <server name>.ece.arizona.edu
 ```
 
+To make your life even easier, add your ssh key to the server. 
 ```
 # do not add the <>
 $ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
@@ -36,12 +38,14 @@ $ ssh-copy-id <UAnetID>@<server name>.ece.arizona.edu
 
 ## Setting Up Your Paths 
 
+Here is an example, however, you will need to make the appropriate changes for your Anaconda installation. 
+
 ```
 . /home/skel/bash/bashrc
 
 export PATH=~/bin:${PATH}
 export PATH=/usr/local/MATLAB/R2015b/bin/:${PATH}
-export PATH=/usr/local/anaconda2/bin/:${PATH}
+export PATH=/scratch/ditzler/anaconda2/bin/:${PATH}
 ```
 
 

@@ -52,6 +52,23 @@ The `ssh` accounts are dealt with via the active directories that are mounted fr
 The Rstudio accounts can be accessed by `http://<server name>.ece.arizona.edu:8787`. 
 
 
-# Running a Jupyter Server 
+# Setting up Python 
 
-To be updated. 
+The [Anaconda](https://www.continuum.io/) distribution of Python is installed on the server; however, there are a lot of permission issues that arise when new modules are install. Therefore, to keep things simple, everyone should have their own version of Anaconda installed. You will therefore be required to keep up with the latest updates and package management. 
+
+To install a vanilla version of Anaconda, run: 
+```
+wget https://3230d63b5fc54e62148e-c95ac804525aac4b6dba79b00b39d1d3.ssl.cf1.rackcdn.com/Anaconda2-2.4.1-Linux-x86_64.sh
+bash Anaconda2-2.4.1-Linux-x86_64.sh
+# follow the instructions and install to your /scratch/ folder
+```
+
+Extra packages I installed are
+```
+conda install -c https://conda.anaconda.org/jjhelmus tensorflow
+conda install cvxopt
+conda install opencv
+pip install dicom
+pip install lmdb
+```
+

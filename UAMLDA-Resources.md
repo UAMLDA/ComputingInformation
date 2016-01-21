@@ -3,9 +3,9 @@
 All of the computing facilities in the UAMLDA given a codename, and these codenames are characters from the Game of Thrones series. There is currently only one server in the group which is described below. Any group member can `ssh` into the server; however, you must be connected to the Univeristy of Arizona's VPN if you are off campus. 
 
 
-# The Khaleesi Server
+# The Research Server
 
-Codename `Khaleesi` is a private server to the students working in the University of Arizona's Machine Learning and Data Analytics Lab. The specifications for `Khaleesi` are 
+This a private server to the students working in the University of Arizona's Machine Learning and Data Analytics Lab. The specifications are 
 
 * Intel Xeon E7-4830 v3 Dodeca-core (12 Core) 2.10 GHz
 * RAM 16 SM 16GB DDR3 SDRAM RAM 16 GB (1 x 16 GB) DDR3 SDRAM-1600 MHz 

@@ -17,11 +17,11 @@ If you have any questions about the content of this tutorial, here are some peop
 Before you can login to the HPC, you need to get sponsored by a faculty. You can talk to Prof. Ditzler to discuss the sponsorship.
 
 ## Login via SSH
-After you are sponsored, you can login to the HPC server using terminal. For example in Linux, you can press 'alt+ctrl+t' to open a terminal. Then in terminal, type the following commands to login:
+After you are sponsored, you can login to the HPC server using terminal. For example in Linux, you can press `alt+ctrl+t` to open a terminal. Then in terminal, type the following commands to login:
 
-'''
+```
 ssh username@hpc.arizona.edu
-'''
+```
 
 Then you are required to enter the password. You should enter the password corresponding to your NetID. Then the system requires an additional security verification. For me I use Duo Push for IOS. Thus after I select it using terminal, HPC will send a request to my phone. And I should confirm this request on my phone. After this two-factor verfication (password + Duo), I can login to the system.
 
@@ -30,9 +30,9 @@ The final step is to choose which platform we want to use. There are 3 in total:
 ## Run TensorFlow Application on Elgato
 To run any resource on Elgato, you need to firstly apply for computation resources. Please do not run any application without firstly applying for resources. To achieve this, you need to do 2 things. Firstly, you need to write a bash file which contains your request. And secondly, you need to submit this request to Elgato system.
 ### Prepare Submit File
-The following script is 'submit.sh'. It shows the simplest way of requesting resources on Elgato.
+The following script is `submit.sh`. It shows the simplest way of requesting resources on Elgato.
 
-'''
+```
 \#!/bin/bash
  
 \#BSUB -n 2
@@ -49,56 +49,56 @@ module load singularity/2.3.1
 \# Use this cd command to enter the directory where you want to run the application (usually where you store the .py script. This directory is the directory where the output .out file and .err file stored. The following directory is only an example. Please modify it accordingly.)
 cd /home/u15/zhengzhongliang/Projects
 
-\# Use singulartiy as the python interpreter on elgato and run 'My_Python_Script.py'
+\# Use singulartiy as the python interpreter on elgato and run `My_Python_Script.py`
   singularity run --nv /unsupported/singularity/tensorflow/tensorflow_gpu-1.2.0-cp35/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img My_Python_Script.py 
 
-\# Here '--nv' indicates that the application will require the use of GPUs.
+\# Here `--nv` indicates that the application will require the use of GPUs.
 \# tf_gpu-1.2.0-cp35-cuda8-cudnn51.img is a TensorFlow image which is prepared by the HPC staff and immediately available on Elgato. You can access that using the directory above, or you can copy it to your own directory.
-'''
+```
 
-The header of this 'submit.sh' file is queue request. The usage of each line is listed as following:
-'''
+The header of this `submit.sh` file is queue request. The usage of each line is listed as following:
+```
 \#BSUB -n 2
-'''
+```
 We will apply for 2 GPUs for our job. Elgato has 128 NVIDIA K20X GPUs, and it has 64 cores, which means each core has 2 GPUs. And these 2 GPUs in a core has shared memory. So communication between the 2 GPUs in the same core does not require Message Passing Interface (MPI).
 
-'''
+```
 \#BSUB -R "span[ptile=16]"
-'''
+```
 The 128 GPUs on Elgato are divided into 8 piles, with each pile consisting 16 GPUs. The exact meaning of this sentence is not very clear. But according to experience, setting ptile to 16 usually makes the tasks go well.
 
-'''
+```
 \#BSUB -R gpu
-'''
+```
 Specify we want to use GPU on Elgato.
 
-'''
+```
 \#BSUB -q "windfall"
-'''
-This is the priority of our job. 'windfall' has the lowest priority. And one drawback of windfall is that, if you submit multiple jobs to Elgato consecutively under windfall, the tasks may not be terminated half way. So if possible, please require the HPC staff to add you to a 'standard' queue. This way you are able to use more resource on Elgato.
+```
+This is the priority of our job. `windfall` has the lowest priority. And one drawback of windfall is that, if you submit multiple jobs to Elgato consecutively under windfall, the tasks may not be terminated half way. So if possible, please require the HPC staff to add you to a `standard` queue. This way you are able to use more resource on Elgato.
 
-'''
+```
 \#BSUB -o GradNorm_clean.out
-'''
-After finishing execution, Elgato will generate the output file of the task. And the output file's name will be 'GradNorm_clean.out'. 
+```
+After finishing execution, Elgato will generate the output file of the task. And the output file's name will be `GradNorm_clean.out`. 
 
-'''
+```
 \#BSUB -e GradNorm_clean.err
-'''
-The error message will be included in the file named 'GradNorm_clean.err'.
+```
+The error message will be included in the file named `GradNorm_clean.err`.
 
-'''
+```
 \#BSUB -J GradNorm_clean
-'''
-Your task will appear in Elgato system with the name of 'GradNorm_clean'
+```
+Your task will appear in Elgato system with the name of `GradNorm_clean`
 
 ### Submit Request to Elgato
-After finishing writing the 'submit.sh' file, you need to submit this request to Elgato through terminal. You need to firstly login to Elgato through ssh (as stated in the sections above). Then you need to access the directory where your 'submit.sh'
-file is stores. For example, if the submit file is stored at '/home/u15/zhengzhongliang/Projects', then you need to type the following commands to submit the request:
-'''
+After finishing writing the `submit.sh` file, you need to submit this request to Elgato through terminal. You need to firstly login to Elgato through ssh (as stated in the sections above). Then you need to access the directory where your `submit.sh`
+file is stores. For example, if the submit file is stored at `/home/u15/zhengzhongliang/Projects`, then you need to type the following commands to submit the request:
+```
 $ cd /home/u15/zhengzhongliang/Projects
 $ bsub < submit.sh
-'''
+```
 
 #Advanced Techniques of Elgato
 ## Use Linux GUI to Access Files on HPC

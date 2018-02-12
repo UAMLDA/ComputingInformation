@@ -130,7 +130,7 @@ If you want your job to be run un-interupted by other jobs you submit, you need 
 The scripts above is not the only way of writting a submission request. The following two pieces of files show another way of writing submission files. 
 
 The first file is `submit.sh`.
-'''
+```
 #!/bin/bash
 
 
@@ -189,10 +189,10 @@ do
       --output="outputs/ptb_exp_small_mix"${ratio}"_rep"${rep_time}"_grad_"${grad_norm}".csv"
   done
 done
-'''
+```
 
 The second file is `submitAll.sh`
-'''
+```
 #!/bin/bash
 
 interval="5"
@@ -203,7 +203,7 @@ do
   bsub -n 2 -R "span[ptile=16]" -R gpu -q "standard" -o "GradNorm_"${grad_norm}".out" -e "GradNorm_"${grad_norm}".err" -J "GradNorm_"${grad_norm} -x "sh submit.sh ${grad_norm}"
   sleep ${interval}
 done
-'''
+```
 
 The logic behind is: you need to enter `./submitAll.sh` in Elgato's terminal, and this `submitAll.sh` file will automatically submit `submit.sh` file for several times. Each time, a different `grad_norm` will be passed to `submit.sh` file. This way you can submit the requests for multiple jobs at a time, and that these jobs can have different parameters.
 

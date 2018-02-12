@@ -33,62 +33,63 @@ To run any resource on Elgato, you need to firstly apply for computation resourc
 The following script is `submit.sh`. It shows the simplest way of requesting resources on Elgato.
 
 ```
-\#!/bin/bash
+#!/bin/bash
  
-\#BSUB -n 2
-\#BSUB -R "span[ptile=16]"
-\#BSUB -R gpu
-\#BSUB -q "windfall"
-\#BSUB -o GradNorm_clean.out
-\#BSUB -e GradNorm_clean.err
-\#BSUB -J GradNorm_clean
+#BSUB -n 2
+#BSUB -R "span[ptile=16]"
+#BSUB -R gpu
+#BSUB -q "windfall"
+#BSUB -o GradNorm_clean.out
+#BSUB -e GradNorm_clean.err
+#BSUB -J GradNorm_clean
  
-\#---------------------------------------------------------------------
-\# Load "singularity 2.3.1, which is crucial to run tensorflow application on Tensorflow"
+#---------------------------------------------------------------------
+# Load "singularity 2.3.1, which is crucial to run tensorflow application on Tensorflow"
 module load singularity/2.3.1
-\# Use this cd command to enter the directory where you want to run the application (usually where you store the .py script. This directory is the directory where the output .out file and .err file stored. The following directory is only an example. Please modify it accordingly.)
+
+# Use this cd command to enter the directory where you want to run the application (usually where you store the .py script. This directory is the directory where the output .out file and .err file stored. The following directory is only an example. Please modify it accordingly.)
 cd /home/u15/zhengzhongliang/Projects
 
-\# Use singulartiy as the python interpreter on elgato and run `My_Python_Script.py`
+# Use singulartiy as the python interpreter on elgato and run `My_Python_Script.py`
   singularity run --nv /unsupported/singularity/tensorflow/tensorflow_gpu-1.2.0-cp35/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img My_Python_Script.py 
 
-\# Here `--nv` indicates that the application will require the use of GPUs.
-\# tf_gpu-1.2.0-cp35-cuda8-cudnn51.img is a TensorFlow image which is prepared by the HPC staff and immediately available on Elgato. You can access that using the directory above, or you can copy it to your own directory.
+# Here `--nv` indicates that the application will require the use of GPUs.
+# tf_gpu-1.2.0-cp35-cuda8-cudnn51.img is a TensorFlow image which is prepared by the HPC staff and immediately available on Elgato. You can access that using the directory above, or you can copy it to your own directory.
 ```
 
 The header of this `submit.sh` file is queue request. The usage of each line is listed as following:
 ```
-\#BSUB -n 2
+#BSUB -n 2
 ```
 We will apply for 2 GPUs for our job. Elgato has 128 NVIDIA K20X GPUs, and it has 64 cores, which means each core has 2 GPUs. And these 2 GPUs in a core has shared memory. So communication between the 2 GPUs in the same core does not require Message Passing Interface (MPI).
 
 ```
-\#BSUB -R "span[ptile=16]"
+#BSUB -R "span[ptile=16]"
 ```
 The 128 GPUs on Elgato are divided into 8 piles, with each pile consisting 16 GPUs. The exact meaning of this sentence is not very clear. But according to experience, setting ptile to 16 usually makes the tasks go well.
 
 ```
-\#BSUB -R gpu
+#BSUB -R gpu
 ```
 Specify we want to use GPU on Elgato.
 
 ```
-\#BSUB -q "windfall"
+#BSUB -q "windfall"
 ```
-This is the priority of our job. `windfall` has the lowest priority. And one drawback of windfall is that, if you submit multiple jobs to Elgato consecutively under windfall, the tasks may not be terminated half way. So if possible, please require the HPC staff to add you to a `standard` queue. This way you are able to use more resource on Elgato.
+This is the priority of our job. `windfall` has the lowest priority. And one drawback of windfall is that, if you submit multiple jobs to Elgato consecutively under windfall, the tasks may be terminated half way. So if possible, please require the HPC staff to add you to a `standard` queue. This way you are able to use more resource on Elgato.
 
 ```
-\#BSUB -o GradNorm_clean.out
+#BSUB -o GradNorm_clean.out
 ```
 After finishing execution, Elgato will generate the output file of the task. And the output file's name will be `GradNorm_clean.out`. 
 
 ```
-\#BSUB -e GradNorm_clean.err
+#BSUB -e GradNorm_clean.err
 ```
 The error message will be included in the file named `GradNorm_clean.err`.
 
 ```
-\#BSUB -J GradNorm_clean
+#BSUB -J GradNorm_clean
 ```
 Your task will appear in Elgato system with the name of `GradNorm_clean`
 
@@ -100,11 +101,30 @@ $ cd /home/u15/zhengzhongliang/Projects
 $ bsub < submit.sh
 ```
 
-#Advanced Techniques of Elgato
+# Advanced Techniques of Elgato
+
+The following techniques may maker it easier if you want to run multiple experiments on Elgato. 
 ## Use Linux GUI to Access Files on HPC
+If you are using Ubuntu, you will be able the access the files on Elgato through Ubuntu's GUI. The following show the steps:
+(1) Open the file manager GUI (usually on the right side of desktop)
+(2) In the left menu, find the "Other Locations" option.
+(3) In the bottom blank, enter "zhengzhongliang@filexfer.hpc.arizona.edu". Here "zhengzhongliang" is your HPC username. Then enter the password of your HPC account. Then you should be able to access the fils through GUI.
 
 
 ## Use the GPUs of a Core Exlusively
+If you want your job to be runned un-interupted by other jobs you submit, you need to request to use the GPUs on 1 core excusively. That is, a different job that you submit to Elgato should be run on another core (another 2 GPUs). To do this, you need to revise the submit file according. You need to change priority to "standard", and you need to add a declaration `#BSUB -x`, which asserts to use the core exclusively.
+```
+#!/bin/bash
+ 
+#BSUB -n 2
+#BSUB -R "span[ptile=16]"
+#BSUB -R gpu
+#BSUB -q "standard"
+#BSUB -o GradNorm_clean.out
+#BSUB -e GradNorm_clean.err
+#BSUB -J GradNorm_clean
+#BSUB -x
+```
 
 ## Write Loop to Submit Multiple Jobs Automatically
 

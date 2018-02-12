@@ -113,7 +113,7 @@ If you are using Ubuntu, you will be able the access the files on Elgato through
 (3) In the bottom blank, enter "ssh://zhengzhongliang@filexfer.hpc.arizona.edu". Here "zhengzhongliang" is your HPC username. Then enter the password of your HPC account. Then you should be able to access the fils through GUI.
 
 
-## Use the GPUs of a Core Exlusively
+## Use the GPUs of a Core Exclusively
 If you want your job to be run un-interupted by other jobs you submit, you need to request to use the GPUs on 1 core excusively. That is, a different job that you submit to Elgato should be run on another core (another 2 GPUs). To do this, you need to revise the submit file accordingly. You need to change priority to "standard", and you need to add a declaration `#BSUB -x`, which asserts to use the core exclusively.
 ```
 #!/bin/bash
@@ -152,7 +152,6 @@ for ratio in ${ratios[*]}
 do
   for rep_time in ${rep_times[*]}
   do
-#  poison samples at end
     singularity run --nv /home/u15/zhengzhongliang/TensorflowGPU/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img rnn_lm.py \
       --model medium \
       --seed ${seed} \
@@ -177,7 +176,6 @@ for ratio in ${ratios[*]}
 do
   for rep_time in ${rep_times[*]}
   do
-#  poison samples at end
     singularity run --nv /home/u15/zhengzhongliang/TensorflowGPU/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img rnn_lm.py \
       --model small \
       --seed ${seed} \

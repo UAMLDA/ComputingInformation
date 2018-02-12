@@ -51,7 +51,7 @@ module load singularity/2.3.1
 cd /home/u15/zhengzhongliang/Projects
 
 # Use singulartiy as the python interpreter on elgato and run `My_Python_Script.py`
-  singularity run --nv /unsupported/singularity/tensorflow/tensorflow_gpu-1.2.0-cp35/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img My_Python_Script.py 
+singularity run --nv /unsupported/singularity/tensorflow/tensorflow_gpu-1.2.0-cp35/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img My_Python_Script.py 
 
 # Here `--nv` indicates that the application will require the use of GPUs.
 # tf_gpu-1.2.0-cp35-cuda8-cudnn51.img is a TensorFlow image which is prepared by the HPC staff and immediately available on Elgato. You can access that using the directory above, or you can copy it to your own directory.
@@ -95,7 +95,7 @@ Your task will appear in Elgato system with the name of `GradNorm_clean`
 
 ### Submit Request to Elgato
 After finishing writing the `submit.sh` file, you need to submit this request to Elgato through terminal. You need to firstly login to Elgato through ssh (as stated in the sections above). Then you need to access the directory where your `submit.sh`
-file is stores. For example, if the submit file is stored at `/home/u15/zhengzhongliang/Projects`, then you need to type the following commands to submit the request:
+file is stored. For example, if the submit file is stored at `/home/u15/zhengzhongliang/Projects`, then you need to type the following commands to submit the request:
 ```
 $ cd /home/u15/zhengzhongliang/Projects
 $ bsub < submit.sh
@@ -106,13 +106,13 @@ $ bsub < submit.sh
 The following techniques may maker it easier if you want to run multiple experiments on Elgato. 
 ## Use Linux GUI to Access Files on HPC
 If you are using Ubuntu, you will be able the access the files on Elgato through Ubuntu's GUI. The following show the steps:
-(1) Open the file manager GUI (usually on the right side of desktop)
+(1) Open the file manager GUI (usually on the left side of desktop)
 (2) In the left menu, find the "Other Locations" option.
 (3) In the bottom blank, enter "zhengzhongliang@filexfer.hpc.arizona.edu". Here "zhengzhongliang" is your HPC username. Then enter the password of your HPC account. Then you should be able to access the fils through GUI.
 
 
 ## Use the GPUs of a Core Exlusively
-If you want your job to be runned un-interupted by other jobs you submit, you need to request to use the GPUs on 1 core excusively. That is, a different job that you submit to Elgato should be run on another core (another 2 GPUs). To do this, you need to revise the submit file according. You need to change priority to "standard", and you need to add a declaration `#BSUB -x`, which asserts to use the core exclusively.
+If you want your job to be run un-interupted by other jobs you submit, you need to request to use the GPUs on 1 core excusively. That is, a different job that you submit to Elgato should be run on another core (another 2 GPUs). To do this, you need to revise the submit file accordingly. You need to change priority to "standard", and you need to add a declaration `#BSUB -x`, which asserts to use the core exclusively.
 ```
 #!/bin/bash
  
@@ -127,6 +127,85 @@ If you want your job to be runned un-interupted by other jobs you submit, you ne
 ```
 
 ## Write Loop to Submit Multiple Jobs Automatically
+The scripts above is not the only way of writting a submission request. The following two pieces of files show another way of writing submission files. 
+
+The first file is `submit.sh`.
+'''
+#!/bin/bash
+
+
+module load singularity/2.3.1
+cd /home/u15/zhengzhongliang/TensorflowGPU/RNN_Poison_Project/Exp19_FormalResultGeneration_4_GradNorm_MoreRatio
+
+seed=42
+
+rep_times="4 8 16 32 64 128 256"
+ratios="002 005 010 020"
+
+# medium network, nested loop: loop over ratio and loop over rep times
+n_step="35"
+keep_prob="0.5"
+grad_norm=$1
+for ratio in ${ratios[*]}
+do
+  for rep_time in ${rep_times[*]}
+  do
+#  poison samples at end
+    singularity run --nv /home/u15/zhengzhongliang/TensorflowGPU/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img rnn_lm.py \
+      --model medium \
+      --seed ${seed} \
+      --n_step ${n_step} \
+      --keep_prob $keep_prob \
+      --grad_norm ${grad_norm} \
+      --train="data/ptb.train.mix"${ratio}".rep"${rep_time}".txt" \
+      --train2=data/shakes.train.010.txt \
+      --test=data/ptb.test.txt \
+      --valid=data/ptb.valid.txt \
+      --output="outputs/ptb_exp_medium_mix"${ratio}"_rep"${rep_time}"_grad_"${grad_norm}".csv"
+  done
+done
+
+
+
+# small network, nested loop: loop over ratio and loop over rep times
+n_step="20"
+keep_prob="1.0"
+grad_norm=$1
+for ratio in ${ratios[*]}
+do
+  for rep_time in ${rep_times[*]}
+  do
+#  poison samples at end
+    singularity run --nv /home/u15/zhengzhongliang/TensorflowGPU/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img rnn_lm.py \
+      --model small \
+      --seed ${seed} \
+      --n_step ${n_step} \
+      --keep_prob $keep_prob \
+      --grad_norm ${grad_norm} \
+      --train="data/ptb.train.mix"${ratio}".rep"${rep_time}".txt" \
+      --train2=data/shakes.train.010.txt \
+      --test=data/ptb.test.txt \
+      --valid=data/ptb.valid.txt \
+      --output="outputs/ptb_exp_small_mix"${ratio}"_rep"${rep_time}"_grad_"${grad_norm}".csv"
+  done
+done
+'''
+
+The second file is `submitAll.sh`
+'''
+#!/bin/bash
+
+interval="5"
+grad_norms="1 2 10 20 40"
+
+for grad_norm in ${grad_norms}
+do
+  bsub -n 2 -R "span[ptile=16]" -R gpu -q "standard" -o "GradNorm_"${grad_norm}".out" -e "GradNorm_"${grad_norm}".err" -J "GradNorm_"${grad_norm} -x "sh submit.sh ${grad_norm}"
+  sleep ${interval}
+done
+'''
+
+The logic behind is: you need to enter `./submitAll.sh` in Elgato's terminal, and this `submitAll.sh` file will automatically submit `submit.sh` file for several times. Each time, a different `grad_norm` will be passed to `submit.sh` file. This way you can submit the requests for multiple jobs at a time, and that these jobs can have different parameters.
 
 ## Sample Code
 

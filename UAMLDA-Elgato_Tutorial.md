@@ -1,15 +1,15 @@
 # About the UAMLDA Computing Resources 
 
-This tutorial aims at clarifying how to use [Elgato](http://elgato.arizona.edu/) at the [High Performance Computing Center (HPC)](https://it.arizona.edu/service/high-performance-computing) at The University of Arizona. Elgato has 128 Tesla K20X GPU, which makes very useful in large-scale machine learning problems. Students can upload code to Elgato can run TensorFlow applications using Elgato's GPU. This can save a lot of time.
+This tutorial aims at clarifying how to use [Elgato](http://elgato.arizona.edu/) at the [High Performance Computing Center (HPC)](https://it.arizona.edu/service/high-performance-computing) at The University of Arizona. Elgato has 128 Tesla K20X GPU, which makes it very useful in large-scale machine learning problems. Students can upload code to Elgato and run TensorFlow applications using Elgato's GPU. This can save a lot of time.
 
 
 # Contact Information
 
 If you have any questions about the content of this tutorial, here are some people you may find helpful:
 
-* HPC consultants (hpc-consult@list.arizona.edu). This list contains the experts who maintain the Elgato service at UA's HPC center.
-* Prof. Ditzler(ditzler@email.arizona.edu). 
-* Zhengzhong Liang (zhengzhongliang@email.arizona.edu), who writes this tutorial.
+* HPC consultants (hpc-consult@list.arizona.edu). This list contains the experts who maintain the Elgato service at UA's HPC center. Replies are usually immediate. So definitely they are very helpful.
+* Prof. Ditzler(ditzler@email.arizona.edu). Prof. Ditzler can sponsor you to have access to the Elgato system.
+* Zhengzhong Liang (zhengzhongliang@email.arizona.edu). Author of this tutorial. If there are any unclear expressions, please feel free to contact.
 
 # Login to the Elgato System
 
@@ -47,13 +47,13 @@ The following script is `submit.sh`. It shows the simplest way of requesting res
 # Load "singularity 2.3.1, which is crucial to run tensorflow application on Tensorflow"
 module load singularity/2.3.1
 
-# Use this cd command to enter the directory where you want to run the application (usually where you store the .py script. This directory is the directory where the output .out file and .err file stored. The following directory is only an example. Please modify it accordingly.)
+# Use this cd command to enter the directory where you want to run the application (usually where you store the .py script. This directory is the directory where the output .out file and .err file will be stored. The following directory is only an example. Please modify it according to your project.)
 cd /home/u15/zhengzhongliang/Projects
 
 # Use singulartiy as the python interpreter on elgato and run `My_Python_Script.py`
 singularity run --nv /unsupported/singularity/tensorflow/tensorflow_gpu-1.2.0-cp35/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img My_Python_Script.py 
 
-# Here `--nv` indicates that the application will require the use of GPUs.
+# Here `--nv` indicates that the application will require the usage of GPUs.
 # tf_gpu-1.2.0-cp35-cuda8-cudnn51.img is a TensorFlow image which is prepared by the HPC staff and immediately available on Elgato. You can access that using the directory above, or you can copy it to your own directory.
 ```
 
@@ -61,7 +61,7 @@ The header of this `submit.sh` file is queue request. The usage of each line is 
 ```
 #BSUB -n 2
 ```
-We will apply for 2 GPUs for our job. Elgato has 128 NVIDIA K20X GPUs, and it has 64 cores, which means each core has 2 GPUs. And these 2 GPUs in a core has shared memory. So communication between the 2 GPUs in the same core does not require Message Passing Interface (MPI).
+We will apply for 2 GPUs for our job. Elgato has 128 NVIDIA K20X GPUs, and it has 64 cores, which means each core has 2 GPUs. And these 2 GPUs in a core have shared memory. So communication between the 2 GPUs in the same core does not require Message Passing Interface (MPI).
 
 ```
 #BSUB -R "span[ptile=16]"
@@ -93,6 +93,8 @@ The error message will be included in the file named `GradNorm_clean.err`.
 ```
 Your task will appear in Elgato system with the name of `GradNorm_clean`
 
+The basic logic behind this is that you need both `singularity` and `tf_gpu-1.2.0-cp35-cuda8-cudnn51.img` to run TensorFlow application on Elgato. These 2 modules combined serve as a python interpreter with TensorFlow library installed.
+
 ### Submit Request to Elgato
 After finishing writing the `submit.sh` file, you need to submit this request to Elgato through terminal. You need to firstly login to Elgato through ssh (as stated in the sections above). Then you need to access the directory where your `submit.sh`
 file is stored. For example, if the submit file is stored at `/home/u15/zhengzhongliang/Projects`, then you need to type the following commands to submit the request:
@@ -108,7 +110,7 @@ The following techniques may maker it easier if you want to run multiple experim
 If you are using Ubuntu, you will be able the access the files on Elgato through Ubuntu's GUI. The following show the steps:
 (1) Open the file manager GUI (usually on the left side of desktop)
 (2) In the left menu, find the "Other Locations" option.
-(3) In the bottom blank, enter "zhengzhongliang@filexfer.hpc.arizona.edu". Here "zhengzhongliang" is your HPC username. Then enter the password of your HPC account. Then you should be able to access the fils through GUI.
+(3) In the bottom blank, enter "ssh://zhengzhongliang@filexfer.hpc.arizona.edu". Here "zhengzhongliang" is your HPC username. Then enter the password of your HPC account. Then you should be able to access the fils through GUI.
 
 
 ## Use the GPUs of a Core Exlusively
@@ -205,7 +207,6 @@ do
 done
 ```
 
-The logic behind is: you need to enter `./submitAll.sh` in Elgato's terminal, and this `submitAll.sh` file will automatically submit `submit.sh` file for several times. Each time, a different `grad_norm` will be passed to `submit.sh` file. This way you can submit the requests for multiple jobs at a time, and that these jobs can have different parameters.
+The logic behind is: you need to enter `./submitAll.sh` in Elgato's terminal, and this `submitAll.sh` file will automatically submit `submit.sh` file for several times. Each time, a different `grad_norm` will be passed to `submit.sh` file. In the `submit.sh` file, the received `grad_norm` value can be retrieved by `$1`. This is how parameters can be passed through different bash files. This way you can submit the requests for multiple jobs at a time, and that these jobs can have different parameters.
 
-## Sample Code
 

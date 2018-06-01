@@ -45,13 +45,13 @@ The following script is `submit.sh`. It shows the simplest way of requesting res
  
 #---------------------------------------------------------------------
 # Load "singularity 2.3.1, which is crucial to run tensorflow application on Tensorflow"
-module load singularity/2.3.1
+module load singularity
 
 # Use this cd command to enter the directory where you want to run the application (usually where you store the .py script. This directory is the directory where the output .out file and .err file will be stored. The following directory is only an example. Please modify it according to your project.)
 cd /home/u15/zhengzhongliang/Projects
 
 # Use singulartiy as the python interpreter on elgato and run `My_Python_Script.py`
-singularity run --nv /unsupported/singularity/tensorflow/tensorflow_gpu-1.2.0-cp35/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img My_Python_Script.py 
+singularity run --nv /unsupported/singularity/keras/keras+tensorflow-1.4.1_gpu-cp35-cuda8-cudnn6.img My_Python_Script.py 
 
 # Here `--nv` indicates that the application will require the usage of GPUs.
 # tf_gpu-1.2.0-cp35-cuda8-cudnn51.img is a TensorFlow image which is prepared by the HPC staff and immediately available on Elgato. You can access that using the directory above, or you can copy it to your own directory.
@@ -136,7 +136,7 @@ The first file is `submit.sh`.
 #!/bin/bash
 
 
-module load singularity/2.3.1
+module load singularity
 cd /home/u15/zhengzhongliang/TensorflowGPU/RNN_Poison_Project/Exp19_FormalResultGeneration_4_GradNorm_MoreRatio
 
 seed=42
@@ -152,7 +152,7 @@ for ratio in ${ratios[*]}
 do
   for rep_time in ${rep_times[*]}
   do
-    singularity run --nv /home/u15/zhengzhongliang/TensorflowGPU/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img rnn_lm.py \
+    singularity run --nv /unsupported/singularity/keras/keras+tensorflow-1.4.1_gpu-cp35-cuda8-cudnn6.img rnn_lm.py \
       --model medium \
       --seed ${seed} \
       --n_step ${n_step} \
@@ -176,7 +176,7 @@ for ratio in ${ratios[*]}
 do
   for rep_time in ${rep_times[*]}
   do
-    singularity run --nv /home/u15/zhengzhongliang/TensorflowGPU/tf_gpu-1.2.0-cp35-cuda8-cudnn51.img rnn_lm.py \
+    singularity run --nv /unsupported/singularity/keras/keras+tensorflow-1.4.1_gpu-cp35-cuda8-cudnn6.img rnn_lm.py \
       --model small \
       --seed ${seed} \
       --n_step ${n_step} \
